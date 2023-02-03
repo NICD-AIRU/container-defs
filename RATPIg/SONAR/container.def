@@ -1,0 +1,111 @@
+Bootstrap: docker
+From: fedora:38
+
+%post
+    # export DEBIAN_FRONTEND=noninteractive
+
+    #install Python
+    dnf upgrade -y
+
+    dnf -y install \
+        R \
+        make \
+        automake \
+        gcc gcc-c++ \
+        kernel-devel \
+        zlib-devel \
+        ncurses-devel \
+        compat-gdbm-devel \
+        nss-devel \
+        readline-devel \
+        libffi-devel \
+        wget \
+        git \
+        python3-pip \
+        python-lxml \
+        python-six \
+        python3-PyQt4 \
+        libidn \
+        cmake \
+        perl-App-cpanminus \
+        perl-LWP-Protocol-https \
+        libdb-devel \
+        perl-PDL \
+        perl-Net-SSLeay \
+        gcc-gfortran \
+        perl-Switch \
+        xorg-x11-server-Xvfb \
+        graphviz \
+        blas blas-devel \
+        lapack lapack-devel
+
+
+        # libexpat1-devel \
+        # texlive-scheme-basic
+        # libatlas-base-devel \
+
+    # install perl modules that are prerequisites
+    cpanm Graph@0.9711 \
+        PDL::LinearAlgebra::Trans \
+        CPAN::Meta \
+        YAML \
+        Digest::SHA \
+        Module::Build \
+        Test::Most \
+        Test::Weaken \
+        Test::Memory::Cycle \
+        Clone \
+        HTML::TableExtract \
+        Algorithm::Munkres \
+        Algorithm::Combinatorics \
+        Statistics::Basic \
+        List::Util \
+        Array::Compare \
+        Convert::Binary::C \
+        Error \
+        GraphViz \
+        Inline::C \
+        PostScript::TextBlock \
+        Set::Scalar \
+        Sort::Naturally \
+        Math::Random \
+        Spreadsheet::ParseExcel \
+        IO::String \
+        JSON \
+        Data::Stag \
+        CGI \
+        Bio::Phylo \
+        DB_File && echo "done!"
+
+    # #now actually install BioPerl
+    cpanm -v https://github.com/bioperl/bioperl-live/archive/refs/tags/release-1-7-2.tar.gz
+
+    python3 -m pip install --upgrade pip
+
+    pip3 install --upgrade ete3
+
+    # #get biopython, docopt & fuzzywuzzy for master script
+    pip3 install biopython docopt fuzzywuzzy
+
+    # #install AIRR reference library, networkx for single cell clonality & Levensthein
+    pip3 install airr networkx python-Levenshtein
+
+    #install R packages
+    R --vanilla -e 'install.packages(c("docopt","MASS","ggplot2","ptinpoly"), repos="http://cran.r-project.org/")'
+
+    #get fastq-dump for vignette
+    curl -O https://ftp-trace.ncbi.nlm.nih.gov/sra/sdk/2.9.6-1/sratoolkit.2.9.6-1-ubuntu64.tar.gz
+    tar -xzf sratoolkit.2.9.6-1-ubuntu64.tar.gz
+    ln -s /sratoolkit.2.9.6-1-ubuntu64/bin/fastq-dump /usr/bin/fastq-dump
+
+    git clone https://github.com/scharch/SONAR.git
+
+    # wget https://github.com/scharch/SONAR/archive/refs/tags/v4.3.tar.gz
+
+    # tar -xzf v4.3.tar.gz
+
+    cd SONAR/
+
+    echo | ./setup.py
+
+    cp sonar /usr/bin
